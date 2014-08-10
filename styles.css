@@ -1,0 +1,11 @@
+#bulletin ul.actions.main li a {width: 20em; padding: 8px 10px;}
+#bulletin h3 {margin-top: 2.4em;}
+#bulletin #submissions table.lines.regulated td.key {width: 200px; color: gray;}
+#bulletin #submissions ul.actions a {background-color: #eee; font-weight: bold;}
+#bulletin table.entries td h3 {margin-top: 0; padding-top: 0;}
+#bulletin table.entries td.value {width: 600px; padding-bottom: 1.5em;}
+#bulletin p#orderingkey {font-size: 0.93em; text-align: right; margin-top: 2em;}
+#bulletin p#orderingkey span {border: 1px solid gray; padding: 1px 5px;}
+#bulletin table .signature {font-style: normal;}	/* Undo .signature italic in generic.css */
+#bulletin table.reviewbox tr.submitter td.value, #bulletin table.reviewbox tr.timestampFormatted td.value {color: gray;}
+#bulletin div.sendnow input[type=submit] {padding: 10px; font-size: 1.25em; color: #603; font-weight: bold;}
