@@ -1,0 +1,33 @@
+# Bulletin Apache directives
+
+# Load using:
+#	# Bulletin
+#	Include /path/to/bulletin/.httpd.conf.extract
+#	Use MacroBulletin /bulletin "/path/to/site/:/path/to/bulletin/:/path/to/php/libraries/:/path/to/_ckeditor/"
+
+
+<Macro MacroBulletin $baseUrl $includePath>
+
+        # Include path
+        <LocationMatch $baseUrl>
+                php_value include_path "$includePath"
+        </LocationMatch>
+
+        # Front controller support
+        Use MacroFrontControllerApplication "$baseUrl/" "Bulletin"
+	
+	# Application-specific directives
+	RewriteEngine On
+        RewriteRule ^$baseUrl/(archive|submit|submissions)/$ $baseUrl/index.html?action=$1 [L]
+        RewriteRule ^$baseUrl/(archive|submit|submissions)$ $baseUrl/$1/ [R]
+        RewriteRule ^$baseUrl/submissions/([0-9]+)/$ $baseUrl/index.html?action=editsubmission&item=$1 [L,QSA]
+        RewriteRule ^$baseUrl/submissions/([0-9]+)$ $baseUrl/submissions/$1/ [R]
+        RewriteRule ^$baseUrl/submissions/(selection|ordering|setmessage|finalise).html$ $baseUrl/index.html?action=$1 [L]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/$ $baseUrl/index.html?action=archive&year=$1 [L]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)/$ $baseUrl/index.html?action=archive&year=$1&term=$2 [L]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)/week([0-9])/$ $baseUrl/index.html?action=archive&year=$1&term=$2&week=$3 [L]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])$ $baseUrl/$1/ [R]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)$ $baseUrl/$1/$2/ [R]
+        RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)/week([0-9])$ $baseUrl/$1/$2/week$3/ [R]
+	
+</Macro>

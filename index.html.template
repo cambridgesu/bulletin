@@ -1,0 +1,32 @@
+<?php
+
+# Configuration
+$config = array (
+	
+	# Database credentials
+	'username' => 'database_username_here',
+	'password' => 'database_password_here',
+	
+	# E-mail addresses
+	'administratorEmail' => 'webmaster@placefordsu.example.com',
+	'notificationsRecipient' => 'president@placefordsu.example.com',
+	'from' => 'president@placefordsu.example.com',
+	'fromName' => 'Sam Smith - Placeford SU President',
+	'replyTo' => 'bulletin@placefordsu.example.com',
+	'replyToName' => 'Placeford SU Bulletin',
+	'emailDomain' => 'example.com',
+	
+	# GUI
+	'organisationName' => 'Placeford SU',
+	
+	# Years to go back
+	'listPattern' => 'placefordsu-ugrads%s@lists.example.com',       // %s will get the year filled in
+	'yearsBack' => 5,       // E.g. if the current academic year is 2014, then this will use lists: placefordsu-ugrads14, placefordsu-ugrads13, placefordsu-ugrads12, placefordsu-ugrads11, placefordsu-ugrads10 (plus the grad list)
+	'otherLists' => 'placefordsu-pgrads@lists.example.com',  // String or an array
+);
+
+# Load and run the Bulletin system with the supplied settings
+require_once ('bulletin.php');
+new bulletin ($config);
+
+?>
