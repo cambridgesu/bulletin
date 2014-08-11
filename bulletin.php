@@ -204,18 +204,6 @@ class bulletin extends frontControllerApplication
 	}
 	
 	
-	# Additional initialisation
-	protected function main ()
-	{
-		# Add the stylesheet
-		#!# Need generic support for this in Front Controller Application
-		$stylesheet = __DIR__ . '/styles.css';
-		$styles = file_get_contents ($stylesheet);
-		echo "\n\n" . '<style type="text/css">' . "\n\t" . str_replace ("\n", "\n\t", trim ($styles)) . "\n</style>\n";
-		
-	}
-	
-	
 	
 	# Home page
 	public function home ()
