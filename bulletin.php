@@ -839,7 +839,7 @@ class bulletin extends frontControllerApplication
 		
 		# Define sortability DHTML; based on http://media.smashingmagazine.com/cdn_smash/images/progressive-enhancement/navigation-3.html
 		#!# Refactor to use $this->settings['jQuery']
-		$jQueryLibrary = '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>';
+		$jQueryLibrary = '<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>';
 		$jQueryCode = "
 			$(document).ready(function() {
 				$('li input').hide();
