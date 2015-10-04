@@ -18,6 +18,9 @@ class bulletin extends frontControllerApplication
 			'table' => 'submissions',
 			'administrators' => 'administrators',
 			
+			# API access
+			'apiUsername' => false,
+			
 			# GUI
 			'applicationName' => 'Bulletin',
 			'organisationName' => NULL,	// e.g. 'Placeford SU'
@@ -836,7 +839,7 @@ class bulletin extends frontControllerApplication
 		
 		# Define sortability DHTML; based on http://media.smashingmagazine.com/cdn_smash/images/progressive-enhancement/navigation-3.html
 		#!# Refactor to use $this->settings['jQuery']
-		$jQueryLibrary = '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>';
+		$jQueryLibrary = '<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>';
 		$jQueryCode = "
 			$(document).ready(function() {
 				$('li input').hide();
@@ -1418,6 +1421,42 @@ class bulletin extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# API call for dashboard
+	public function apiCall_dashboard ($username = NULL)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# State that the service is enabled
+		$data['enabled'] = true;
+		
+		# Ensure a username is supplied
+		if (!$username) {
+			$data['error'] = 'No username was supplied.';
+			return $data;
+		}
+		
+		# Define description
+		$data['descriptionHtml'] = "<p>The CUSU Bulletin is issued to all undergraduates and post-graduates each week during Term.</p>";
+		
+		# Add links
+		$data['links']["{$this->baseUrl}/"] = '{icon:house} Bulletin home';
+		$data['links']["{$this->baseUrl}/archive/"] = '{icon:application_view_list} View latest';
+		if (isSet ($this->administrators[$username])) {
+			$data['links']["{$this->baseUrl}/submissions/"] = '{icon:cog} Prepare Bulletin';
+		}
+
+		# Add link to submit an item for the Bulletin
+		$html .= "<p><a href=\"{$this->baseUrl}/submit/\" class=\"actions\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Submit an item for the next Bulletin</a></p>";
+
+		# Register the HTML
+		$data['html'] = $html;
+		
+		# Return the data
+		return $data;
 	}
 }
 

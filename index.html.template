@@ -7,6 +7,9 @@ $config = array (
 	'username' => 'database_username_here',
 	'password' => 'database_password_here',
 	
+	# API access
+	'apiUsername' => 'api_username_here',
+	
 	# E-mail addresses
 	'administratorEmail' => 'webmaster@placefordsu.example.com',
 	'notificationsRecipient' => 'president@placefordsu.example.com',
