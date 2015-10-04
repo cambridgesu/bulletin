@@ -1010,7 +1010,7 @@ class bulletin extends frontControllerApplication
 		}
 		
 		# Assemble the text of the bulletin
-		$text = $this->assembleText ($articles, $introductoryText);
+		$textVersion = $this->assembleText ($articles, $introductoryText);
 		
 		# Determine the sender and the Reply-To
 		$from    = 'From: '     . (strstr (PHP_OS, 'WIN') ? $this->settings['from']    : '"' . $this->settings['fromName']    . '" <' . $this->settings['from']    . '>');
@@ -1022,22 +1022,35 @@ class bulletin extends frontControllerApplication
 		# Construct the subject
 		$subject = $this->settings['applicationName'] . ': ' . ucfirst ($messageEntry['week']);
 		
-		# Construct an emulated full version (showing the e-mail headers)
-		$fullEmail  = $from . "\n";
-		$fullEmail .= $replyTo . "\n";
-		$fullEmail .= 'To: ' . $to . "\n";
-		$fullEmail .= 'Subject: ' . $subject . "\n";
-		$fullEmail  = wordwrap ($fullEmail);
-		$fullEmail .= "\n" . $text;
+		# Construct a block showing the headers for confirmation display purposes
+		$headersPreview  = $from . "\n";
+		$headersPreview .= $replyTo . "\n";
+		$headersPreview .= 'To: ' . $to . "\n";
+		$headersPreview .= 'Subject: ' . $subject . "\n";
+		$headersPreview = wordwrap ($headersPreview);
 		
-		# Count length and items
-		$lines = count (explode ("\n", $text));
+		# Count length
+		$lines = count (explode ("\n", $textVersion));
+		
+		# Create the HTML version
+		$htmlVersion = $this->assembleText ($articles, $introductoryText, $htmlVersion = true, $htmlVersionEmailOptimised = true);
 		
 		# Show the text
 		$html .= "\n<p>Here is the proposed Bulletin. It is <strong>{$lines} lines</strong> long</strong>.</p>\n<p>Please check it over carefully, and amend it via the previous steps if necessary. Submit the button at the end to send it.</p>";
 		$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" alt=\"!\" /> Do <strong>not </strong>send the mailshots during the working day while Hermes is busy: before 8am or after 6pm is best.</a></p>";
+		
+		# Give a preview of the HTML version
+		$html .= "\n<h3>HTML version:</h3>";
 		$html .= "\n<div class=\"graybox\">";
-		$html .= '<pre>' . htmlspecialchars ($fullEmail) . '</pre>';
+		$html .= '<pre>' . htmlspecialchars ($headersPreview) . '</pre>' . '<br />';
+		$html .= $htmlVersion;
+		$html .= "\n</div>";
+		
+		# Give a preview of the text version
+		$html .= "\n<h3>Text version:</h3>";
+		$html .= "\n<div class=\"graybox\">";
+		$html .= '<pre>' . htmlspecialchars ($headersPreview) . '</pre>' . '<br />';
+		$html .= '<pre>' . htmlspecialchars (wordwrap ($textVersion)) . '</pre>';
 		$html .= "\n</div>";
 		
 		# Sending form
@@ -1059,12 +1072,9 @@ class bulletin extends frontControllerApplication
 		));
 		if ($result = $form->process ($html)) {
 			
-			# Create the HTML version
-			$htmlVersion = $this->assembleText ($articles, $introductoryText, $htmlVersion = true, $htmlVersionEmailOptimised = true);
-			
 			# Compile the message parts
 			$message = array (
-				'text' => $text,
+				'text' => $textVersion,
 				'html' => $htmlVersion,
 			);
 			
@@ -1086,7 +1096,7 @@ class bulletin extends frontControllerApplication
 				'term' => $messageEntry['term'],
 				'week' => $messageEntry['week'],
 				'introductoryText' => $introductoryText,
-				'bulletinText' => $text,
+				'bulletinText' => $textVersion,	// Not actually used any more
 			);
 			$this->databaseConnection->insert ($this->settings['database'], 'archive', $insert, false, $emptyToNull = false);
 			
