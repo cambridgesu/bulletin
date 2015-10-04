@@ -25,7 +25,7 @@ class bulletin extends frontControllerApplication
 			'applicationName' => 'Bulletin',
 			'organisationName' => NULL,	// e.g. 'Placeford SU'
 			'div' => 'bulletin',
-
+			
 			# E-mail addresses
 			'administratorEmail' => $_SERVER['SERVER_ADMIN'],
 			'notificationsRecipient' => NULL,	// e.g. 'president@placefordsu.example.com'
@@ -347,8 +347,8 @@ class bulletin extends frontControllerApplication
 		# Get the entries
 		$articles = $this->getArticles ($bulletinData['id'], $errorHtml);
 		
-		# Assemble the text
-		$text = $this->assembleText ($articles, $bulletinData['introductoryText'], $htmlVersion = true);
+		# Assemble the bulletin
+		$text = $this->compileBulletin ($articles, $bulletinData['introductoryText'], $asHtml = true);
 		
 		# Return the text
 		return $text;
@@ -1013,7 +1013,7 @@ class bulletin extends frontControllerApplication
 		}
 		
 		# Assemble the text of the bulletin
-		$textVersion = $this->assembleText ($articles, $introductoryText);
+		$textVersion = $this->compileBulletin ($articles, $introductoryText);
 		
 		# Determine the sender and the Reply-To
 		$from    = 'From: '     . (strstr (PHP_OS, 'WIN') ? $this->settings['from']    : '"' . $this->settings['fromName']    . '" <' . $this->settings['from']    . '>');
@@ -1036,7 +1036,7 @@ class bulletin extends frontControllerApplication
 		$lines = count (explode ("\n", $textVersion));
 		
 		# Create the HTML version
-		$htmlVersion = $this->assembleText ($articles, $introductoryText, $htmlVersion = true, $htmlVersionEmailOptimised = true);
+		$htmlVersion = $this->compileBulletin ($articles, $introductoryText, $asHtml = true, $htmlVersionEmailOptimised = true);
 		
 		# Show the text
 		$html .= "\n<p>Here is the proposed Bulletin. It is <strong>{$lines} lines</strong> long</strong>.</p>\n<p>Please check it over carefully, and amend it via the previous steps if necessary. Submit the button at the end to send it.</p>";
@@ -1165,7 +1165,7 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function to assemble the text
-	private function assembleText ($articlesByGroup, $introductoryText, $htmlVersion = false, $htmlVersionEmailOptimised = false)
+	private function compileBulletin ($articlesByGroup, $introductoryHtml, $asHtml = false, $htmlVersionEmailOptimised = false)
 	{
 		# End if no articles
 		if (!$articlesByGroup) {return false;}
@@ -1174,23 +1174,23 @@ class bulletin extends frontControllerApplication
 		$types = $this->getTypes ();
 		
 		# Format the introductory text if required
-		$introductoryText = $this->formatText ($introductoryText, $htmlVersion, $htmlVersionEmailOptimised);
-		if ($htmlVersion) {$introductoryText = nl2br ($introductoryText);}
+		$introductoryText = $this->formatText ($introductoryText, $asHtml, $htmlVersionEmailOptimised);
+		if ($asHtml) {$introductoryText = nl2br ($introductoryText);}
 		
 		# Assemble the jumplist
-		$jumplist = $this->assembleJumplist ($articlesByGroup, $types, $htmlVersion, $htmlVersionEmailOptimised);
+		$jumplist = $this->assembleJumplist ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
 		
 		# Assemble the main text
-		$mainText = $this->assembleMainText ($articlesByGroup, $types, $htmlVersion, $htmlVersionEmailOptimised);
+		$mainText = $this->assembleMainText ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
 		
 		# Separator between the two sections
-		$separator = ($htmlVersion ? "<br />" : "\n__\n");
+		$separator = ($asHtml ? "<br />" : "\n__\n");
 		
 		# Assemble the text, wordwrapping to <80 chars
 		$text = $introductoryText . $jumplist . $separator . $mainText;
 		
 		# Wordwrap if not HTML
-		if (!$htmlVersion) {
+		if (!$asHtml) {
 			$text = wordwrap ($text);
 		}
 		
@@ -1200,7 +1200,7 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function to assemble the jumplist
-	private function assembleJumplist ($articlesByGroup, $types, $htmlVersion, $htmlVersionEmailOptimised = false)
+	private function assembleJumplist ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised = false)
 	{
 		# Loop through each article group to create the jump list
 		$jumplist = '';
@@ -1209,7 +1209,7 @@ class bulletin extends frontControllerApplication
 			
 			# Add the group title
 			$groupTitle = $this->articleGroupTitle ($types[$group]);
-			if ($htmlVersion) {
+			if ($asHtml) {
 				$groups[$group] = '<strong>' . htmlspecialchars ($groupTitle) . '</strong>:';
 			} else {
 				$jumplist .= "\n\n" . strtoupper ($groupTitle) . "\n";
@@ -1221,7 +1221,7 @@ class bulletin extends frontControllerApplication
 			$titles = array ();
 			foreach ($articles as $article) {
 				$i++;
-				if ($htmlVersion) {
+				if ($asHtml) {
 					$titles[] = ($htmlVersionEmailOptimised ? "<a name=\"{$group}{$i}link\"></a><a" : "<a id=\"{$group}{$i}link\"") . " href=\"#{$group}{$i}\">" . htmlspecialchars (trim ($article['title'])) . '</a>';
 				} else {
 					$titles[] = str_pad ($i, $maxlength, ' ', STR_PAD_LEFT) . '. ' . $article['title'];
@@ -1229,7 +1229,7 @@ class bulletin extends frontControllerApplication
 			}
 			
 			# Compile the list into HTML
-			if ($htmlVersion) {
+			if ($asHtml) {
 				$groups[$group] .= application::htmlOl ($titles, 1, 'normal small');
 			} else {
 				$jumplist .= "\n" . implode ("\n", $titles);
@@ -1237,7 +1237,7 @@ class bulletin extends frontControllerApplication
 		}
 		
 		# Compile the groups list in the HTML version
-		if ($htmlVersion) {
+		if ($asHtml) {
 			$jumplist .= application::htmlUl ($groups, 0, 'spaced');
 		}
 		
@@ -1247,7 +1247,7 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function to assemble the main text
-	private function assembleMainText ($articlesByGroup, $types, $htmlVersion, $htmlVersionEmailOptimised = false)
+	private function assembleMainText ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised = false)
 	{
 		# Loop through each article group to create the main text
 		$mainText = '';
@@ -1255,7 +1255,7 @@ class bulletin extends frontControllerApplication
 			
 			# Add the group title
 			$groupTitle = $this->articleGroupTitle ($types[$group]);
-			if ($htmlVersion) {
+			if ($asHtml) {
 				$mainText .= "\n\n\n" . ($htmlVersionEmailOptimised ? "<h2><a name=\"{$group}\"></a>" : "<h2 id=\"{$group}\">" . "<a href=\"#{$group}\">#</a> ") . htmlspecialchars ($groupTitle) . "</h2>\n";
 			} else {
 				$mainText .= "\n\n\n" . strtoupper ($groupTitle) . "\n" . str_repeat ('-', strlen ($groupTitle));
@@ -1268,7 +1268,7 @@ class bulletin extends frontControllerApplication
 				
 				# Add the article title
 				$i++;
-				if ($htmlVersion) {
+				if ($asHtml) {
 					$mainText .= "\n\n" . ($htmlVersionEmailOptimised ? "<h3><a name=\"{$group}{$i}\"></a>" : "<h3 id=\"{$group}{$i}\">" . "<a href=\"#{$group}{$i}\">#</a> ") . "{$i}. " . htmlspecialchars (trim ($article['title'])) . "</h3>\n";
 				} else {
 					$mainText .= "\n\n" . str_pad ($i, $maxlength, ' ', STR_PAD_LEFT) . '. ' . strtoupper (trim ($article['title'])) . "\n";
@@ -1276,24 +1276,24 @@ class bulletin extends frontControllerApplication
 				
 				# Article metadata
 				$articleText = '';
-				if ($article['date']) {$articleText .= $this->createTitle ('Date', 5, $htmlVersion) . $article['date'];}
-				if ($article['time']) {$articleText .= $this->createTitle ('Time', 5, $htmlVersion) . $article['time'];}
+				if ($article['date']) {$articleText .= $this->createTitle ('Date', 5, $asHtml) . $article['date'];}
+				if ($article['time']) {$articleText .= $this->createTitle ('Time', 5, $asHtml) . $article['time'];}
 				if ($article['location']) {
-					$articleText .= $this->createTitle ('Where', 5, $htmlVersion) . $article['location'];
+					$articleText .= $this->createTitle ('Where', 5, $asHtml) . $article['location'];
 					if ($article['accessibility'] == 'Venue is not disabled accessible') {$articleText .= '  [NB: not disabled accessible]';}
 				}
 				if ($article['date'] || $article['time'] || $article['location']) {$articleText .= "\n";}
 				
 				# Main article text
-				$articleText .= "\n" . $this->formatText ($article['text'], $htmlVersion, $htmlVersionEmailOptimised) . "\n";
+				$articleText .= "\n" . $this->formatText ($article['text'], $asHtml, $htmlVersionEmailOptimised) . "\n";
 				
 				# More article metadata
-				$articleText .= $this->createTitle ('Contact', 7, $htmlVersion) . $this->formatText ($article['email'], $htmlVersion, $htmlVersionEmailOptimised);
-				if ($article['webpage']) {$articleText .= $this->createTitle ('Webpage', 7, $htmlVersion) . $this->formatText ($article['webpage'], $htmlVersion, $htmlVersionEmailOptimised);}
+				$articleText .= $this->createTitle ('Contact', 7, $asHtml) . $this->formatText ($article['email'], $asHtml, $htmlVersionEmailOptimised);
+				if ($article['webpage']) {$articleText .= $this->createTitle ('Webpage', 7, $asHtml) . $this->formatText ($article['webpage'], $asHtml, $htmlVersionEmailOptimised);}
 				$articleText .= "\n";
 				
 				# Convert to HTML if required
-				if ($htmlVersion) {
+				if ($asHtml) {
 					$mainText .= nl2br (trim ($articleText));
 					$mainText .= "\n\n<p class=\"right small\"><a href=\"#{$group}{$i}link\">^ Top</a></p>";
 					$mainText .= "\n<br /><br />\n<hr />";
@@ -1309,16 +1309,16 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function make titles bold if required
-	private function createTitle ($string, $groupLongestWordLength, $htmlVersion)
+	private function createTitle ($string, $groupLongestWordLength, $asHtml)
 	{
 		# Make bold if required
-		if ($htmlVersion) {$string = "<strong>{$string}</strong>";}
+		if ($asHtml) {$string = "<strong>{$string}</strong>";}
 		
 		# Append a colon
 		$string .= ':';
 		
 		# Determine subsequent padding for the text version so that the labels align
-		if (!$htmlVersion) {
+		if (!$asHtml) {
 			$groupLongestWordLength = $groupLongestWordLength + 1;	// Account for the colon
 			$string = str_pad ($string, $groupLongestWordLength);
 		}
@@ -1335,25 +1335,25 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function to format and hyperlink text
-	private function formatText ($string, $htmlVersion, $htmlVersionEmailOptimised = false)
+	private function formatText ($plainTextString, $asHtml, $htmlVersionEmailOptimised = false)
 	{
 		# Return the string unmodified if not the HTML version
-		if (!$htmlVersion) {return $string;}
+		if (!$asHtml) {return $plainTextString;}
 		
 		# Make the core text entity-safe
-		$string = htmlspecialchars ($string);
+		$html = htmlspecialchars ($plainTextString);
 		
 		# Add hyperlinks
-		$string = application::makeClickableLinks ($string);
+		$html = application::makeClickableLinks ($html);
 		
 		# Encode e-mail addresses, unless for e-mail
 		#!# Consider adding auto-mailto of addresses - not all mail clients (e.g. Hermes Webmail v1) will add this automatically
 		if (!$htmlVersionEmailOptimised) {
-			$string = application::encodeEmailAddress ($string);
+			$html = application::encodeEmailAddress ($html);
 		}
 		
 		# Return the processed string
-		return $string;
+		return $html;
 	}
 	
 	
