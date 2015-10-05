@@ -5,7 +5,7 @@
 	<title>CUSU Bulletin</title>
 {literal}
 	<style type="text/css">
-		#email {width: auto; margin: 0; padding: 50px;}
+		#email {width: auto; margin: 0; padding: 25px;}
 		#email {font-family: Verdana, Geneva, sans-serif; font-size: 1em; line-height: 1.3em; color: #333;}	/* http://www.w3schools.com/cssref/css_websafe_fonts.asp */
 		#email p.tagline {font-size: 1.2em; color: #39f;}
 		#email ul {list-style: bullet;}
@@ -14,7 +14,8 @@
 		#email div.news h2 {background-color: #39f; color: white; font-weight: normal; letter-spacing: 1px; padding: 25px; text-transform: uppercase; margin-bottom: 0;}
 		#email div.news h2 a {color: white; font-size: 0.6em; border-bottom: 0;}
 		#email div.news h3 {font-weight: normal;}
-		#email div.news div {padding: 10px 25px 25px; border-bottom: 2px dashed #39f;}
+		#email div.news div {border-bottom: 2px dashed #39f;}
+		#email div.introduction, #email div.news div {padding: 10px 25px 25px;}
 	</style>
 {/literal}
 </head>
@@ -23,17 +24,19 @@
 <div id="email">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td align="center">
+	<tr width="100%">
+		<td align="center" width="100%">
 			<p><img style="margin: auto; text-align: center;" src="https://nus-production-assets.s3-eu-west-1.amazonaws.com/themes/cusu_default/images/unioncloud-logo.png" width="208" height="120" alt="CUSU" /></p>
 			<p class="tagline">Your voice, your students' union</p>
 		</td>
 	</tr>
 </table>
 
+<div class="introduction">
 
 {$content}
 
+</div>
 
 <div class="news">
 
