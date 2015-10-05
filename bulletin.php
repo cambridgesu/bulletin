@@ -1215,6 +1215,11 @@ class bulletin extends frontControllerApplication
 			# Process the template
 			$html = $this->templatise ('email.tpl');
 			
+			# Convert CSS to inline styles; see: https://github.com/jjriv/emogrifier and https://www.campaignmonitor.com/css/
+			require_once ('emogrifier/Classes/Emogrifier.php');
+			$emogrifier = new \Pelago\Emogrifier ($html, $css = '');
+			$html = $emogrifier->emogrify ();
+			
 			# Return the HTML
 			return $html;
 			
