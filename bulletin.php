@@ -149,8 +149,9 @@ class bulletin extends frontControllerApplication
 		  `academicYear` varchar(9) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Academic year',
 		  `term` enum('Michaelmas term','Lent term','Easter term') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Term',
 		  `week` enum('week 0','week 1','week 2','week 3','week 4','week 5','week 6','week 7','week 8','week 9') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Week of term',
-		  `introductoryText` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introductory text',
-		  `bulletinText` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Text of the Bulletin',
+		  `introductoryHtml` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introductory text (HTML)',
+		  `introductoryText` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introductory text (plain text equivalent)',
+		  `bulletinText` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Text of the Bulletin (now ignored)',
 		  `dateIssued` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Date issued',
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Bulletin archive';
@@ -160,7 +161,7 @@ class bulletin extends frontControllerApplication
 		  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique key',
 		  `term` enum('','Michaelmas term','Lent term','Easter term') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Term',
 		  `week` enum('','week 0','week 1','week 2','week 3','week 4','week 5','week 6','week 7','week 8','week 9') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Week of term',
-		  `message` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Text of message',
+		  `messageHtml` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introduction text',
 		  `signature` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Signature',
 		  `lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last updated',
 		  PRIMARY KEY (`id`)
@@ -342,13 +343,18 @@ class bulletin extends frontControllerApplication
 		// # Return the text
 		// # NB No longer used as it is better to create this dynamically so we can have different output types
 		// # This might be useful if importing old bulletins that were manually assembled
-		// return $bulletinData['bulletinText'];
+		// return $bulletinData['bulletinText'];	#!# Code would need to be upgraded to HTML processing
 		
 		# Get the entries
 		$articles = $this->getArticles ($bulletinData['id'], $errorHtml);
 		
+		# For legacy archive bulletins, emulate (upscale) the stored introductoryText as HTML
+		if (!$bulletinData['introductoryHtml']) {
+			$bulletinData['introductoryHtml'] = application::formatTextBlock ($this->formatText ($bulletinData['introductoryText'], $asHtml = true));
+		}
+		
 		# Assemble the bulletin
-		$text = $this->compileBulletin ($articles, $bulletinData['introductoryText'], $asHtml = true);
+		$text = $this->compileBulletin ($articles, $bulletinData['introductoryHtml'], $asHtml = true);
 		
 		# Return the text
 		return $text;
@@ -975,7 +981,7 @@ class bulletin extends frontControllerApplication
 			'exclude' => array ('id', ),
 			'data' => $message,
 			'attributes' => array (
-				'message' => array ('cols' => 76, 'rows' => 17, ),	// 76 is one more than PHP's wordwrap routine, so this gives a realistic idea of layout
+				'messageHtml' => array ('editorToolbarSet' => 'Basic'),
 				'signature' => array ('cols' => 76, 'rows' => 6, ),
 			),
 		));
@@ -1003,7 +1009,7 @@ class bulletin extends frontControllerApplication
 		
 		# Assemble the introductory message
 		$messageEntry = $this->databaseConnection->selectOne ($this->settings['database'], 'message', array ('id' => 1));
-		$introductoryText = $messageEntry['message'] . "\n\n\n" . $messageEntry['signature'] . "\n__\n\n";
+		$introductoryHtml = $messageEntry['messageHtml'] . "\n<br />\n<p>" . nl2br ($messageEntry['signature']) . '</p>' . "\n<p>__</p>";
 		
 		# Get the articles
 		if (!$articles = $this->getArticles (false, $errorHtml)) {
@@ -1013,7 +1019,7 @@ class bulletin extends frontControllerApplication
 		}
 		
 		# Assemble the text of the bulletin
-		$textVersion = $this->compileBulletin ($articles, $introductoryText);
+		$textVersion = $this->compileBulletin ($articles, $introductoryHtml);
 		
 		# Determine the sender and the Reply-To
 		$from    = 'From: '     . (strstr (PHP_OS, 'WIN') ? $this->settings['from']    : '"' . $this->settings['fromName']    . '" <' . $this->settings['from']    . '>');
@@ -1036,7 +1042,7 @@ class bulletin extends frontControllerApplication
 		$lines = count (explode ("\n", $textVersion));
 		
 		# Create the HTML version
-		$htmlVersion = $this->compileBulletin ($articles, $introductoryText, $asHtml = true, $htmlVersionEmailOptimised = true);
+		$htmlVersion = $this->compileBulletin ($articles, $introductoryHtml, $asHtml = true, $htmlVersionEmailOptimised = true);
 		
 		# Show the text
 		$html .= "\n<p>Here is the proposed Bulletin. It is <strong>{$lines} lines</strong> long</strong>.</p>\n<p>Please check it over carefully, and amend it via the previous steps if necessary. Submit the button at the end to send it.</p>";
@@ -1098,8 +1104,9 @@ class bulletin extends frontControllerApplication
 				'academicYear' => $academicYearString,
 				'term' => $messageEntry['term'],
 				'week' => $messageEntry['week'],
-				'introductoryText' => $introductoryText,
-				'bulletinText' => $textVersion,	// Not actually used any more
+				'introductoryHtml' => $introductoryHtml,
+				'introductoryText' => $this->htmlToText ($introductoryHtml),
+				'bulletinText' => $textVersion,		// Not actually used any more
 			);
 			$this->databaseConnection->insert ($this->settings['database'], 'archive', $insert, false, $emptyToNull = false);
 			
@@ -1110,13 +1117,13 @@ class bulletin extends frontControllerApplication
 			
 			# Reset the template details
 			$nextTerm = array ('Michaelmas term' => 'Lent term', 'Lent term' => 'Easter term', 'Easter term' => 'Michaelmas term');	#!# This would ideally be self-referential from the database but it's not worth the bother
-			$updates = array (
-				'term'		=> ($messageEntry['week'] == 'week 9' ? $nextTerm[$messageEntry['term']] : $messageEntry['term']),
-				'week'		=> 'week ' . ($messageEntry['week'] == 'week 9' ? '0' : str_replace ('week ', '', $messageEntry['week']) + 1),
-				'message'	=> "Check out our website at {$_SERVER['SERVER_NAME']}\n\nDear all,\n\nText of message goes here",
+			$update = array (
+				'term'			=> ($messageEntry['week'] == 'week 9' ? $nextTerm[$messageEntry['term']] : $messageEntry['term']),
+				'week'			=> 'week ' . ($messageEntry['week'] == 'week 9' ? '0' : str_replace ('week ', '', $messageEntry['week']) + 1),
+				'messageHtml'	=> "<p>Check out our website at {$_SERVER['SERVER_NAME']}</p>\n<p>Dear all,</p>\n<p>Text of message goes here</p>",
 				// Signature is maintained, as it is unlikely to change much from week to week
 			);
-			$this->databaseConnection->update ($this->settings['database'], 'message', $updates, array ('id' => 1));
+			$this->databaseConnection->update ($this->settings['database'], 'message', $update, array ('id' => 1));
 		}
 		
 		# Show the HTML
@@ -1174,8 +1181,11 @@ class bulletin extends frontControllerApplication
 		$types = $this->getTypes ();
 		
 		# Format the introductory text if required
-		$introductoryText = $this->formatText ($introductoryText, $asHtml, $htmlVersionEmailOptimised);
-		if ($asHtml) {$introductoryText = nl2br ($introductoryText);}
+		if ($asHtml) {
+			$introduction = $introductoryHtml;
+		} else {
+			$introduction = $this->htmlToText ($introductoryHtml);
+		}
 		
 		# Assemble the jumplist
 		$jumplist = $this->assembleJumplist ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
@@ -1187,7 +1197,7 @@ class bulletin extends frontControllerApplication
 		$separator = ($asHtml ? "<br />" : "\n__\n");
 		
 		# Assemble the text, wordwrapping to <80 chars
-		$text = $introductoryText . $jumplist . $separator . $mainText;
+		$text = $introduction . $jumplist . $separator . $mainText;
 		
 		# Wordwrap if not HTML
 		if (!$asHtml) {
@@ -1330,6 +1340,24 @@ class bulletin extends frontControllerApplication
 		$string = "\n" . $string;
 		
 		# Return the result
+		return $string;
+	}
+	
+	
+	# Format to downgrade HTML to plain text; this is effectively a reversal of application::formatTextBlock ()
+	private function htmlToText ($string)
+	{
+		# Convert HTML special characters back to plain text
+		#!# htmlspecialchars_decode may not be sufficient
+		$string = htmlspecialchars_decode ($string);
+		
+		# Treat paragraphs as having a line break after
+		$string = str_replace ('</p>', "\n", $string);
+		
+		# Strip tags
+		$string = strip_tags ($string);
+		
+		# Return the plain text
 		return $string;
 	}
 	
