@@ -30,4 +30,9 @@
         RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)$ $baseUrl/$1/$2/ [R]
         RewriteRule ^$baseUrl/(20[0-9][0-9]-20[0-9][0-9])/(michaelmas|lent|easter)/week([0-9])$ $baseUrl/$1/$2/week$3/ [R]
 	
+	<LocationMatch (/_ckeditor/|/_ckfinder/)>
+		php_admin_value auto_prepend_file none
+		php_admin_value auto_append_file none
+	</LocationMatch>
+	
 </Macro>

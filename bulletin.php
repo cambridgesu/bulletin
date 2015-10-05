@@ -993,7 +993,7 @@ class bulletin extends frontControllerApplication
 			'exclude' => array ('id', ),
 			'data' => $message,
 			'attributes' => array (
-				'messageHtml' => array ('editorToolbarSet' => 'Basic'),
+				'messageHtml' => array ('editorToolbarSet' => 'BasicImage'),
 				'signature' => array ('cols' => 76, 'rows' => 6, ),
 			),
 		));
