@@ -5,20 +5,21 @@
 	<title>CUSU Bulletin</title>
 {literal}
 	<style type="text/css">
-		body {width: auto; margin: 0; padding: 50px;}
-		body {font-family: Verdana, Geneva, sans-serif; font-size: 1em; line-height: 1.3em; color: #333;}	/* http://www.w3schools.com/cssref/css_websafe_fonts.asp */
-		p.tagline {font-size: 1.2em; color: #39f;}
-		ul {list-style: bullet;}
-		ul li {margin-bottom: 1em;}
-		ul li strong {color: orange;}
-		div.news h2 {background-color: #39f; color: white; font-weight: normal; letter-spacing: 1px; padding: 25px; text-transform: uppercase; margin-bottom: 0;}
-		div.news h3 {font-weight: normal;}
-		div.article {padding: 10px 25px; border-bottom: 2px dashed #39f;}
+		#email {width: auto; margin: 0; padding: 50px;}
+		#email {font-family: Verdana, Geneva, sans-serif; font-size: 1em; line-height: 1.3em; color: #333;}	/* http://www.w3schools.com/cssref/css_websafe_fonts.asp */
+		#email p.tagline {font-size: 1.2em; color: #39f;}
+		#email ul {list-style: bullet;}
+		#email ul li {margin-bottom: 1em;}
+		#email ul li strong {color: orange;}
+		#email div.news h2 {background-color: #39f; color: white; font-weight: normal; letter-spacing: 1px; padding: 25px; text-transform: uppercase; margin-bottom: 0;}
+		#email div.news h3 {font-weight: normal;}
+		#email div.article {padding: 10px 25px; border-bottom: 2px dashed #39f;}
 	</style>
 {/literal}
 </head>
 
 <body>
+<div id="email">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr>
@@ -40,6 +41,7 @@
 
 </div>
 
+</div>
 </body>
 
 </html>
