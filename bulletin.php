@@ -25,6 +25,7 @@ class bulletin extends frontControllerApplication
 			'applicationName' => 'Bulletin',
 			'organisationName' => NULL,	// e.g. 'Placeford SU'
 			'div' => 'bulletin',
+			'richtextEditorAreaCSS' => false,
 			
 			# E-mail addresses
 			'administratorEmail' => $_SERVER['SERVER_ADMIN'],
@@ -985,6 +986,7 @@ class bulletin extends frontControllerApplication
 			'formCompleteText' => "\n<div class=\"graybox\"><p><img src=\"/images/icons/tick.png\" alt=\"Tick\" class=\"icon\" /> <strong>The message has been saved. <a href=\"{$this->baseUrl}/submissions/finalise.html\">Now finalise the Bulletin &raquo;</a></strong></p></div>",
 			'databaseConnection' => $this->databaseConnection,
 			'nullText' => '',
+			'richtextEditorAreaCSS' => $this->settings['richtextEditorAreaCSS'],
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
@@ -993,7 +995,7 @@ class bulletin extends frontControllerApplication
 			'exclude' => array ('id', ),
 			'data' => $message,
 			'attributes' => array (
-				'messageHtml' => array ('editorToolbarSet' => 'BasicImage', 'editorFileBrowserStartupPath' => $this->baseUrl . '/images/', ),
+				'messageHtml' => array ('editorToolbarSet' => 'BasicImage', 'editorFileBrowserStartupPath' => $this->baseUrl . '/images/', 'imageAlignmentByClass' => false, ),
 				'signature' => array ('cols' => 76, 'rows' => 6, ),
 			),
 		));
