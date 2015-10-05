@@ -1341,9 +1341,10 @@ class bulletin extends frontControllerApplication
 				
 				# Convert to HTML if required
 				if ($asHtml) {
+					$listing .= "\n<div>";
 					$listing .= nl2br (trim ($articleText));
+					$listing .= "\n</div>";
 					$listing .= "\n\n<p class=\"right small\"><a href=\"#{$group}{$i}link\">^ Top</a></p>";
-					$listing .= "\n<br /><br />\n<hr />";
 				} else {
 					$listing .= $articleText;
 				}

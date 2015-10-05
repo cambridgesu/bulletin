@@ -12,8 +12,9 @@
 		#email ul li {margin-bottom: 1em;}
 		#email ul li strong {color: orange;}
 		#email div.news h2 {background-color: #39f; color: white; font-weight: normal; letter-spacing: 1px; padding: 25px; text-transform: uppercase; margin-bottom: 0;}
+		#email div.news h2 a {color: white; font-size: 0.6em; border-bottom: 0;}
 		#email div.news h3 {font-weight: normal;}
-		#email div.article {padding: 10px 25px; border-bottom: 2px dashed #39f;}
+		#email div.news div {padding: 10px 25px 25px; border-bottom: 2px dashed #39f;}
 	</style>
 {/literal}
 </head>
