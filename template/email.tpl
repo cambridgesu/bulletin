@@ -31,7 +31,6 @@
 	</tr>
 </table>
 
-<img src="http://s3-eu-west-1.amazonaws.com/nusdigital/image/images/42488/original/PrisFrame_Angled.png" align="right" />
 
 {$content}
 
