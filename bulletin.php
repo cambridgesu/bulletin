@@ -45,6 +45,10 @@ class bulletin extends frontControllerApplication
 			'textMaxlengthAdmin' => 2000,
 			'academicYearThresholdMonth' => 9,	// i.e. New academic year starts in September
 			'farTooManyItems' => 15,	// Point at which a warning about too many items should appear
+			
+			# Templating
+			'useTemplating' => true,	// Whether to enable templating
+			'templatesDirectory' => '%applicationRoot/template/',
 		);
 		
 		# Return the defaults
@@ -120,6 +124,14 @@ class bulletin extends frontControllerApplication
 				'url' => 'feedback.html',
 				'tab' => 'Feedback',
 				'icon' => 'email',
+			),
+			'templates' => array (
+				'description' => 'E-mail template',
+				'url' => 'templates/',
+				'parent' => 'admin',
+				'subtab' => 'E-mail template',
+				'icon' => 'tag',
+				'administrator' => true,
 			),
 		);
 		
