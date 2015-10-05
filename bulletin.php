@@ -1202,22 +1202,37 @@ class bulletin extends frontControllerApplication
 		# Assemble the jumplist
 		$jumplist = $this->assembleJumplist ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
 		
-		# Assemble the main text
-		$mainText = $this->assembleMainText ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
+		# Assemble the listing
+		$listing = $this->assembleListing ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised);
 		
-		# Separator between the two sections
-		$separator = ($asHtml ? "<br />" : "\n__\n");
-		
-		# Assemble the text, wordwrapping to <80 chars
-		$text = $introduction . $jumplist . $separator . $mainText;
-		
-		# Wordwrap if not HTML
-		if (!$asHtml) {
+		# If HTML, combine the values into the template
+		if ($asHtml) {
+			
+			# Populate the template
+			$this->template['content'] = $introductoryHtml;
+			$this->template['listing'] = /* $jumplist . */ $listing;
+			
+			# Process the template
+			$html = $this->templatise ('email.tpl');
+			
+			# Return the HTML
+			return $html;
+			
+		# Or as text, complile manually
+		} else {
+			
+			# Separator between the two sections
+			$separator = ($asHtml ? "<br />" : "\n__\n");
+			
+			# Assemble the text, wordwrapping to <80 chars
+			$text = $introduction . $jumplist . $separator . $listing;
+			
+			# Wordwrap
 			$text = wordwrap ($text);
+			
+			# Return the text
+			return $text;
 		}
-		
-		# Return the text
-		return $text;
 	}
 	
 	
@@ -1269,18 +1284,18 @@ class bulletin extends frontControllerApplication
 	
 	
 	# Function to assemble the main text
-	private function assembleMainText ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised = false)
+	private function assembleListing ($articlesByGroup, $types, $asHtml, $htmlVersionEmailOptimised = false)
 	{
-		# Loop through each article group to create the main text
-		$mainText = '';
+		# Loop through each article group to create the listing
+		$listing = '';
 		foreach ($articlesByGroup as $group => $articles) {
 			
 			# Add the group title
 			$groupTitle = $this->articleGroupTitle ($types[$group]);
 			if ($asHtml) {
-				$mainText .= "\n\n\n" . ($htmlVersionEmailOptimised ? "<h2><a name=\"{$group}\"></a>" : "<h2 id=\"{$group}\">" . "<a href=\"#{$group}\">#</a> ") . htmlspecialchars ($groupTitle) . "</h2>\n";
+				$listing .= "\n\n\n" . ($htmlVersionEmailOptimised ? "<h2><a name=\"{$group}\"></a>" : "<h2 id=\"{$group}\">" . "<a href=\"#{$group}\">#</a> ") . htmlspecialchars ($groupTitle) . "</h2>\n";
 			} else {
-				$mainText .= "\n\n\n" . strtoupper ($groupTitle) . "\n" . str_repeat ('-', strlen ($groupTitle));
+				$listing .= "\n\n\n" . strtoupper ($groupTitle) . "\n" . str_repeat ('-', strlen ($groupTitle));
 			}
 			
 			# Loop through each article
@@ -1291,9 +1306,9 @@ class bulletin extends frontControllerApplication
 				# Add the article title
 				$i++;
 				if ($asHtml) {
-					$mainText .= "\n\n" . ($htmlVersionEmailOptimised ? "<h3><a name=\"{$group}{$i}\"></a>" : "<h3 id=\"{$group}{$i}\">" . "<a href=\"#{$group}{$i}\">#</a> ") . "{$i}. " . htmlspecialchars (trim ($article['title'])) . "</h3>\n";
+					$listing .= "\n\n" . ($htmlVersionEmailOptimised ? "<h3><a name=\"{$group}{$i}\"></a>" : "<h3 id=\"{$group}{$i}\">" . "<a href=\"#{$group}{$i}\">#</a> ") . "{$i}. " . htmlspecialchars (trim ($article['title'])) . "</h3>\n";
 				} else {
-					$mainText .= "\n\n" . str_pad ($i, $maxlength, ' ', STR_PAD_LEFT) . '. ' . strtoupper (trim ($article['title'])) . "\n";
+					$listing .= "\n\n" . str_pad ($i, $maxlength, ' ', STR_PAD_LEFT) . '. ' . strtoupper (trim ($article['title'])) . "\n";
 				}
 				
 				# Article metadata
@@ -1316,17 +1331,17 @@ class bulletin extends frontControllerApplication
 				
 				# Convert to HTML if required
 				if ($asHtml) {
-					$mainText .= nl2br (trim ($articleText));
-					$mainText .= "\n\n<p class=\"right small\"><a href=\"#{$group}{$i}link\">^ Top</a></p>";
-					$mainText .= "\n<br /><br />\n<hr />";
+					$listing .= nl2br (trim ($articleText));
+					$listing .= "\n\n<p class=\"right small\"><a href=\"#{$group}{$i}link\">^ Top</a></p>";
+					$listing .= "\n<br /><br />\n<hr />";
 				} else {
-					$mainText .= $articleText;
+					$listing .= $articleText;
 				}
 			}
 		}
 		
 		# Return the HTML
-		return $mainText;
+		return $listing;
 	}
 	
 	
