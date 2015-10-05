@@ -1220,6 +1220,11 @@ class bulletin extends frontControllerApplication
 			$emogrifier = new \Pelago\Emogrifier ($html, $css = '');
 			$html = $emogrifier->emogrify ();
 			
+			# Convert images to absolute URL
+			#!# This needs to be handled better in ultimateForm
+			#!# No support yet for protocol-less (i.e. //...) URLs
+			$html = str_replace (' src="/', " src=\"{$_SERVER['_SITE_URL']}/", $html);
+			
 			# Return the HTML
 			return $html;
 			
