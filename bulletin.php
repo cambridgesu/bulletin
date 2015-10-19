@@ -1546,6 +1546,7 @@ class bulletin extends frontControllerApplication
 		$sinenomineExtraSettings = array (
 			'headingLevel' => false,
 			'int1ToCheckbox' => true,
+			'fieldFiltering' => false,
 		);
 		
 		# Delegate to the standard function for editing
