@@ -176,7 +176,7 @@ class bulletin extends frontControllerApplication
 		  `week` enum('','week 0','week 1','week 2','week 3','week 4','week 5','week 6','week 7','week 8','week 9') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Week of term',
 		  `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Bulletin' COMMENT 'Subject',
 		  `messageHtml` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introduction text',
-		  `signature` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Signature',
+		  `signature` text COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Signature (if not already included in main block)',
 		  `lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last updated',
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Message text';
@@ -996,9 +996,9 @@ class bulletin extends frontControllerApplication
 			'exclude' => array ('id', ),
 			'data' => $message,
 			'attributes' => array (
-				'messageHtml' => array ('editorToolbarSet' => 'BasicImage', 'editorFileBrowserStartupPath' => $this->baseUrl . '/images/', 'imageAlignmentByClass' => false, ),
+				'messageHtml' => array ('editorToolbarSet' => 'BasicImage', 'editorFileBrowserStartupPath' => $this->baseUrl . '/images/', 'imageAlignmentByClass' => false, 'width' => 650, ),
 				'subject' => array ('size' => 60, 'maxlength' => 76, ),
-				'signature' => array ('cols' => 76, 'rows' => 6, ),
+				'signature' => array ('cols' => 40, 'rows' => 3, ),
 			),
 		));
 		
@@ -1025,7 +1025,10 @@ class bulletin extends frontControllerApplication
 		
 		# Assemble the introductory message
 		$messageEntry = $this->databaseConnection->selectOne ($this->settings['database'], 'message', array ('id' => 1));
-		$introductoryHtml = $messageEntry['messageHtml'] . "\n<br />\n<p>" . nl2br ($messageEntry['signature']) . '</p>';
+		$introductoryHtml = $messageEntry['messageHtml'];
+		if ($messageEntry['signature']) {
+			$introductoryHtml .= "\n<br />\n<p>" . nl2br ($messageEntry['signature']) . '</p>';
+		}
 		
 		# Get the articles, if any
 		$articles = $this->getArticles (false, $errorHtml);
