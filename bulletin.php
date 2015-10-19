@@ -1543,7 +1543,10 @@ class bulletin extends frontControllerApplication
 		$dataBindingAttributes = array (
 			'id' => array ('regexp' => '^[a-z]+$', ),
 		);
-		$sinenomineExtraSettings = array ('headingLevel' => false, );
+		$sinenomineExtraSettings = array (
+			'headingLevel' => false,
+			'int1ToCheckbox' => true,
+		);
 		
 		# Delegate to the standard function for editing
 		echo $this->editingTable ('types', $dataBindingAttributes, 'graybox lines', false, $sinenomineExtraSettings);
