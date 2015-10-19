@@ -212,6 +212,13 @@ class bulletin extends frontControllerApplication
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Submissions for consideration';
 		
+		CREATE TABLE `settings` (
+		  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+		  `listAddress` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'List address (if not using auto per-year lists)',
+		  PRIMARY KEY (`id`)
+		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings' AUTO_INCREMENT=2 ;
+		INSERT INTO `settings` (`id`, `listAddress`) VALUES (1, NULL);
+		
 		-- Submission types
 		CREATE TABLE `types` (
 		  `id` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Internal name',
@@ -1443,6 +1450,11 @@ class bulletin extends frontControllerApplication
 	# Function to construct the recipient addresses
 	private function recipientAddresses ($listPattern, $yearsBack, $otherLists)
 	{
+		# If the settings have a specified list, return that
+		if ($this->settings['listAddress']) {
+			return $this->settings['listAddress'];
+		}
+		
 		# Start a list of addresses
 		$addresses = array ();
 		
