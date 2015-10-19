@@ -218,7 +218,7 @@ class bulletin extends frontControllerApplication
 		  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type',
 		  `ordering` tinyint(2) DEFAULT '5' COMMENT 'Ordering (10 = nearest top of list)',
 		  `available` int(1) NOT NULL DEFAULT '1' COMMENT 'Available for new submissions?',
-		  `colour` varchar(6) COLLATE utf8_unicode_ci NOT NULL COMMENT 'HTML colour value',
+		  `colour` varchar(7) COLLATE utf8_unicode_ci NOT NULL COMMENT 'HTML colour value',
 		  PRIMARY KEY (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='List of event types';
 		";
@@ -818,7 +818,7 @@ class bulletin extends frontControllerApplication
 		$colours = array ();
 		foreach ($types as $id => $type) {
 			$colours[$id] = $type['colour'];
-			$ordering[] = "<span style=\"background-color: #{$type['colour']};\">{$type['type']}</span>";
+			$ordering[] = "<span style=\"background-color: {$type['colour']};\">{$type['type']}</span>";
 		}
 		$html .= "\n<p id=\"orderingkey\">Ordering required: " . implode (', ', $ordering) . '</p>';
 		
