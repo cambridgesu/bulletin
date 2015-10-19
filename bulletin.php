@@ -1409,6 +1409,9 @@ class bulletin extends frontControllerApplication
 		# Treat paragraphs as having a line break after
 		$string = str_replace ('</p>', "\n", $string);
 		
+		# Treat list items as bullet-points
+		$string = str_replace ("\t<li>", "* ", $string);
+		
 		# Strip tags
 		$string = strip_tags ($string);
 		
