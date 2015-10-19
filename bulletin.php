@@ -47,6 +47,9 @@ class bulletin extends frontControllerApplication
 			'academicYearThresholdMonth' => 9,	// i.e. New academic year starts in September
 			'farTooManyItems' => 15,	// Point at which a warning about too many items should appear
 			
+			# Types editing
+			'useEditing' => true,
+			
 			# Templating
 			'useTemplating' => true,	// Whether to enable templating
 			'templatesDirectory' => '%applicationRoot/template/',
@@ -132,6 +135,14 @@ class bulletin extends frontControllerApplication
 				'parent' => 'admin',
 				'subtab' => 'E-mail template',
 				'icon' => 'tag',
+				'administrator' => true,
+			),
+			'editing' => array (
+				'description' => 'Edit types',
+				'url' => 'types/',
+				'parent' => 'admin',
+				'subtab' => 'Edit types',
+				'icon' => 'text_list_bullets',
 				'administrator' => true,
 			),
 		);
@@ -1522,6 +1533,20 @@ class bulletin extends frontControllerApplication
 		
 		# Return the data
 		return $data;
+	}
+	
+	
+	# Admin editing section, substantially delegated to the sinenomine editing component
+	public function editing ($attributes = array (), $deny = false)
+	{
+		# Get the databinding attributes
+		$dataBindingAttributes = array (
+			'id' => array ('regexp' => '^[a-z]+$', ),
+		);
+		$sinenomineExtraSettings = array ('headingLevel' => false, );
+		
+		# Delegate to the standard function for editing
+		echo $this->editingTable ('types', $dataBindingAttributes, 'graybox lines', false, $sinenomineExtraSettings);
 	}
 }
 

@@ -35,4 +35,22 @@
 		php_admin_value auto_append_file none
 	</LocationMatch>
 	
+	# Table editing
+	Use MacroSinenomineEmbeddedTable "$baseUrl" "/types" "editing"
 </Macro>
+
+# Macro for an embedded sinenomine instantiation with rewriting, for a table only, as e.g. /applicationroot/editing/<editingUrl>/ with the database name and table name being set in the embedding application
+<Macro MacroSinenomineEmbeddedTable $applicationBaseUrl $editingUrl $applicationAction>
+        RewriteEngine On
+        RewriteRule ^$applicationBaseUrl$editingUrl/$ $applicationBaseUrl/index.html?action=$applicationAction [L,QSA]
+        RedirectMatch permanent ^$applicationBaseUrl$editingUrl$ $applicationBaseUrl$editingUrl/
+        RewriteRule ^$applicationBaseUrl$editingUrl/(index|listing).html$ $applicationBaseUrl/index.html?action=$applicationAction&do=$1 [L]
+        RewriteRule ^$applicationBaseUrl$editingUrl/(add).html$ $applicationBaseUrl/index.html?action=$applicationAction&do=$1 [L]
+        RewriteRule ^$applicationBaseUrl$editingUrl/(search).html$ $applicationBaseUrl/index.html?action=$applicationAction&do=$1 [L,QSA]
+        RewriteRule ^$applicationBaseUrl$editingUrl/page([0-9]+).html$ $applicationBaseUrl/index.html?action=$applicationAction&page=$1 [L,QSA]
+        RewriteRule ^$applicationBaseUrl$editingUrl/all.html$ $applicationBaseUrl/index.html?action=$applicationAction&page=all [L,QSA]
+        RedirectMatch Permanent ^$applicationBaseUrl$editingUrl/([^/]+)$ $applicationBaseUrl$editingUrl/$1/
+        RewriteRule ^$applicationBaseUrl$editingUrl/([^/]+)/$ $applicationBaseUrl/index.html?action=$applicationAction&record=$1 [L]
+        RewriteRule ^$applicationBaseUrl$editingUrl/([^/]+)/(index|edit|clone|delete).html$ $applicationBaseUrl/index.html?action=$applicationAction&record=$1&do=$2 [L]
+</Macro>
+
