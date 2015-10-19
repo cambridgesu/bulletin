@@ -1025,14 +1025,10 @@ class bulletin extends frontControllerApplication
 		
 		# Assemble the introductory message
 		$messageEntry = $this->databaseConnection->selectOne ($this->settings['database'], 'message', array ('id' => 1));
-		$introductoryHtml = $messageEntry['messageHtml'] . "\n<br />\n<p>" . nl2br ($messageEntry['signature']) . '</p>' . "\n<p>__</p>";
+		$introductoryHtml = $messageEntry['messageHtml'] . "\n<br />\n<p>" . nl2br ($messageEntry['signature']) . '</p>';
 		
-		# Get the articles
-		if (!$articles = $this->getArticles (false, $errorHtml)) {
-			echo $html;
-			echo $errorHtml;
-			return false;
-		}
+		# Get the articles, if any
+		$articles = $this->getArticles (false, $errorHtml);
 		
 		# Assemble the text of the bulletin
 		$textVersion = $this->compileBulletin ($articles, $introductoryHtml);
@@ -1152,12 +1148,8 @@ class bulletin extends frontControllerApplication
 		# Determine the retrieval conditions
 		$conditions = 'bulletinId ' . ($bulletinId ? "= {$bulletinId}" : 'IS NULL') . " AND include = 'Yes'";
 		
-		# Get the submissions
-		if (!$data = $this->getSubmissions ('*', $conditions, 'type DESC,position')) {
-			$informationMark = '<img src="/images/icons/information.png" alt="!" class="icon" />';
-			$errorHtml = "\n<p>{$informationMark} There are no items for inclusion.</p>";
-			return false;
-		}
+		# Get the submissions, if any
+		$data = $this->getSubmissions ('*', $conditions, 'type DESC,position');
 		
 		// # Cache the total number of items
 		// $total = count ($data);
@@ -1189,9 +1181,6 @@ class bulletin extends frontControllerApplication
 	# Function to assemble the text
 	private function compileBulletin ($articlesByGroup, $introductoryHtml, $asHtml = false, $htmlVersionEmailOptimised = false)
 	{
-		# End if no articles
-		if (!$articlesByGroup) {return false;}
-		
 		# Get the types, which are used for the labels
 		$types = $this->getTypes ();
 		
@@ -1231,14 +1220,18 @@ class bulletin extends frontControllerApplication
 			# Return the HTML
 			return $html;
 			
-		# Or as text, complile manually
+		# Or as text, compile manually
 		} else {
 			
-			# Separator between the two sections
-			$separator = ($asHtml ? "<br />" : "\n__\n");
+			# Assemble the text
+			$text  = $introduction;
 			
-			# Assemble the text, wordwrapping to <80 chars
-			$text = $introduction . $jumplist . $separator . $listing;
+			# Add listing if any items
+			if ($listing) {
+				$text .= "\n__\n";	// Separator
+				$text .= $jumplist;
+				$text .= $listing;
+			}
 			
 			# Wordwrap
 			$text = wordwrap ($text);
