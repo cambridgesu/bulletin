@@ -174,6 +174,7 @@ class bulletin extends frontControllerApplication
 		  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique key',
 		  `term` enum('','Michaelmas term','Lent term','Easter term') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Term',
 		  `week` enum('','week 0','week 1','week 2','week 3','week 4','week 5','week 6','week 7','week 8','week 9') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Week of term',
+		  `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Bulletin' COMMENT 'Subject',
 		  `messageHtml` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Introduction text',
 		  `signature` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Signature',
 		  `lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last updated',
@@ -996,6 +997,7 @@ class bulletin extends frontControllerApplication
 			'data' => $message,
 			'attributes' => array (
 				'messageHtml' => array ('editorToolbarSet' => 'BasicImage', 'editorFileBrowserStartupPath' => $this->baseUrl . '/images/', 'imageAlignmentByClass' => false, ),
+				'subject' => array ('size' => 60, 'maxlength' => 76, ),
 				'signature' => array ('cols' => 76, 'rows' => 6, ),
 			),
 		));
@@ -1042,14 +1044,11 @@ class bulletin extends frontControllerApplication
 		# Determine the lists to send to
 		$to = $this->recipientAddresses ($this->settings['listPattern'], $this->settings['yearsBack'], $this->settings['otherLists']);
 		
-		# Construct the subject
-		$subject = $this->settings['applicationName'] . ': ' . ucfirst ($messageEntry['week']);
-		
 		# Construct a block showing the headers for confirmation display purposes
 		$headersPreview  = $from . "\n";
 		$headersPreview .= $replyTo . "\n";
 		$headersPreview .= 'To: ' . $to . "\n";
-		$headersPreview .= 'Subject: ' . $subject . "\n";
+		$headersPreview .= 'Subject: ' . $messageEntry['subject'] . "\n";
 		$headersPreview = wordwrap ($headersPreview);
 		
 		# Count length
@@ -1102,7 +1101,7 @@ class bulletin extends frontControllerApplication
 			);
 			
 			# Mail the Bulletin
-			application::utf8mail ($to, $subject, $message, $from . "\n" . $replyTo);
+			application::utf8mail ($to, $messageEntry['subject'], $message, $from . "\n" . $replyTo);
 			
 			# Confirm sending, resetting all HTML
 			$html  = "\n<div class=\"graybox\"><p><img src=\"/images/icons/tick.png\" alt=\"Tick\" class=\"icon\" /> <strong>The Bulletin has now been sent! <a href=\"{$this->baseUrl}/archive/\">It will now be in the archive.</a></strong></p></div>";
@@ -1131,10 +1130,12 @@ class bulletin extends frontControllerApplication
 			
 			# Reset the template details
 			$nextTerm = array ('Michaelmas term' => 'Lent term', 'Lent term' => 'Easter term', 'Easter term' => 'Michaelmas term');	#!# This would ideally be self-referential from the database but it's not worth the bother
+			$nextWeek = 'week ' . ($messageEntry['week'] == 'week 9' ? '0' : str_replace ('week ', '', $messageEntry['week']) + 1);
 			$update = array (
 				'term'			=> ($messageEntry['week'] == 'week 9' ? $nextTerm[$messageEntry['term']] : $messageEntry['term']),
-				'week'			=> 'week ' . ($messageEntry['week'] == 'week 9' ? '0' : str_replace ('week ', '', $messageEntry['week']) + 1),
+				'week'			=> $nextWeek,
 				'messageHtml'	=> "<p>Check out our website at {$_SERVER['SERVER_NAME']}</p>\n<p>Dear all,</p>\n<p>Text of message goes here</p>",
+				'subject'		=> $this->settings['applicationName'] . ': ' . ucfirst ($nextWeek),
 				// Signature is maintained, as it is unlikely to change much from week to week
 			);
 			$this->databaseConnection->update ($this->settings['database'], 'message', $update, array ('id' => 1));
