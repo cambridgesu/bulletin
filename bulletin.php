@@ -26,6 +26,7 @@ class bulletin extends frontControllerApplication
 			'organisationName' => NULL,	// e.g. 'Placeford SU'
 			'div' => 'bulletin',
 			'richtextEditorAreaCSS' => false,
+			'jQuery' => true,
 			
 			# E-mail addresses
 			'administratorEmail' => $_SERVER['SERVER_ADMIN'],
@@ -490,6 +491,7 @@ class bulletin extends frontControllerApplication
 			'databaseConnection' => $this->databaseConnection,
 			'display' => 'paragraphs',
 			'displayRestrictions' => false,
+			'jQuery' => $this->settings['jQuery'],
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
@@ -696,6 +698,7 @@ class bulletin extends frontControllerApplication
 			'displayTemplate' => $template,
 			'nullText' => 'Leave for later',
 			'unsavedDataProtection' => true,
+			'jQuery' => $this->settings['jQuery'],
 		));
 		$i = 0;
 		foreach ($data as $id => $entry) {
@@ -944,6 +947,7 @@ class bulletin extends frontControllerApplication
 			'unsavedDataProtection' => true,
 			'submitButtonText' => 'Save this ordering!',
 			'submitButtonAccesskey' => false,
+			'jQuery' => $this->settings['jQuery'],
 		));
 		foreach ($data as $id => $entry) {
 			$form->input (array (
@@ -1006,6 +1010,7 @@ class bulletin extends frontControllerApplication
 			'databaseConnection' => $this->databaseConnection,
 			'nullText' => '',
 			'richtextEditorAreaCSS' => $this->settings['richtextEditorAreaCSS'],
+			'jQuery' => $this->settings['jQuery'],
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
@@ -1102,6 +1107,7 @@ class bulletin extends frontControllerApplication
 			'div' => 'graybox sendnow',
 			'submitButtonText' => 'Send the Bulletin now! &raquo;',
 			'submitButtonAccesskey' => false,
+			'jQuery' => $this->settings['jQuery'],
 		));
 		$form->checkboxes (array (
 			'name' => 'send',
