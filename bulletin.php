@@ -43,8 +43,6 @@ class bulletin extends frontControllerApplication
 			'otherLists' => 'placefordsu-pgrads@lists.example.com',  // String or an array
 			
 			# General
-			'textMaxlength' => 1000,
-			'textMaxlengthAdmin' => 2000,
 			'academicYearThresholdMonth' => 9,	// i.e. New academic year starts in September
 			'farTooManyItems' => 15,	// Point at which a warning about too many items should appear
 			
@@ -215,6 +213,8 @@ class bulletin extends frontControllerApplication
 		
 		CREATE TABLE `settings` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+		  `textMaxlength` INT( 11 ) NOT NULL DEFAULT  '1000' COMMENT 'Max length of submissions, in characters (ordinary users)',
+		  `textMaxlengthAdmin` INT( 11 ) NOT NULL DEFAULT  '2000' COMMENT  'Max length of submissions, in characters (administrators)',
 		  `listAddress` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'List address (if not using auto per-year lists)',
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings' AUTO_INCREMENT=2 ;
