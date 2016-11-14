@@ -674,20 +674,30 @@ class bulletin extends frontControllerApplication
 		
 		# Create the template
 		$table = array ();
-		$table['<strong>Include in this bulletin?</strong>'] = '<strong>Main text of entry</strong>';	// Header
 		$widgetNames = array ();
 		foreach ($data as $id => $entry) {
 			$widgetNames[$id] = 'id' . $id;
 			$key = '{' . $widgetNames[$id] . '}';
-			$table[$key]  = "\n<p class=\"small right\"><a href=\"{$this->baseUrl}/submissions/{$id}/\" title=\"Link opens in a new window\" target=\"_blank\">Full info &hellip;</a></p>";
-			$table[$key] .= "\n<h3>" . htmlspecialchars ($entry['title']) . '</h3>';
-			$table[$key] .= "\n" . substr ($entry['text'], 0, 220) . '&hellip;';
+			$text = "\n<p class=\"small right\"><a href=\"{$this->baseUrl}/submissions/{$id}/\" title=\"Link opens in a new window\" target=\"_blank\">Full info &hellip;</a></p>";
+			$text .= "\n<h3>" . htmlspecialchars ($entry['title']) . '</h3>';
+			$text .= "\n" . substr ($entry['text'], 0, 400) . '&hellip;';
+			$table[] = array (
+				'include' => $key,
+				'submitted' => date ('Y-m-d', strtotime ($entry['timestamp'])),
+				'entry' => $text,
+			);
 		}
-		$table = application::htmlTableKeyed ($table, array (), false, 'lines entries', $allowHtml = true, $showColons = false);
+		$tableHeadingSubstitutions = array (
+			'include' => '<strong>Include in this bulletin?</strong>',
+			'submitted' => 'Submitted on',
+			'text' => '<strong>Main text of entry</strong>',
+		);
+		$tableHtml  = "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="/sitetech/sorttable.js"></script>';
+		$tableHtml .= application::htmlTable ($table, $tableHeadingSubstitutions, $class = 'lines entries sortable" id="sortable', $keyAsFirstColumn = false, false, $allowHtml = true);
 		
 		# Create the template
 		$template  = "\n\n" . '{[[PROBLEMS]]}';
-		$template .= $table;
+		$template .= $tableHtml;
 		$template .= "\n\n" . '{[[SUBMIT]]}';
 		
 		# Create the form
