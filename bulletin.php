@@ -30,7 +30,6 @@ class bulletin extends frontControllerApplication
 			
 			# E-mail addresses
 			'administratorEmail' => $_SERVER['SERVER_ADMIN'],
-			'notificationsRecipient' => NULL,	// e.g. 'president@placefordsu.example.com'
 			'from' => NULL,		// e.g. 'president@placefordsu.example.com'
 			'fromName' => NULL,	// e.g. 'Sam Smith - Placeford SU President'
 			'replyTo' => NULL,	// e.g. 'bulletin@placefordsu.example.com'
@@ -216,6 +215,7 @@ class bulletin extends frontControllerApplication
 		  `textMaxlength` INT( 11 ) NOT NULL DEFAULT  '1000' COMMENT 'Max length of submissions, in characters (ordinary users)',
 		  `textMaxlengthAdmin` INT( 11 ) NOT NULL DEFAULT  '2000' COMMENT  'Max length of submissions, in characters (administrators)',
 		  `listAddress` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'List address (if not using auto per-year lists)',
+		  `notificationsRecipient` VARCHAR(255) NOT NULL DEFAULT  'notifications@example.com' COMMENT 'E-mail for notifications of new submissions',
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings' AUTO_INCREMENT=2 ;
 		INSERT INTO `settings` (`id`, `listAddress`) VALUES (1, NULL);

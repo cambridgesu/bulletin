@@ -12,7 +12,6 @@ $config = array (
 	
 	# E-mail addresses
 	'administratorEmail' => 'webmaster@placefordsu.example.com',
-	'notificationsRecipient' => 'president@placefordsu.example.com',
 	'from' => 'president@placefordsu.example.com',
 	'fromName' => 'Sam Smith - Placeford SU President',
 	'replyTo' => 'bulletin@placefordsu.example.com',
