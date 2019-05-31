@@ -201,7 +201,7 @@ class bulletin extends frontControllerApplication
 		  `text` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Text of entry',
 		  `webpage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Webpage giving further details (optional)',
 		  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'E-mail address that people can contact for more info',
-		  `accessibility` enum('','Not applicable (not an event)','Venue is disabled accessible','Venue is not disabled accessible') COLLATE utf8_unicode_ci NOT NULL COMMENT 'Disabled accessible?',
+		  `accessibility` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Access statement',
 		  `submitter` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Submitted by',
 		  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Automatic timestamp',
 		  `bulletinId` int(11) DEFAULT NULL COMMENT 'Include/refused for Bulletin ID',
@@ -508,6 +508,8 @@ class bulletin extends frontControllerApplication
 				'submitter' => array ('default' => $this->user . '@' . $this->settings['emailDomain'], 'editable' => false, ),
 				'date' => array ('description' => 'Please enter like:&nbsp; Monday 1 January'),
 				'time' => array ('description' => 'Please enter like:&nbsp; 6.30pm'),
+				#!# Needs to disallow linebreaks, but not yet possible in ultimateForm
+				'accessibility' => array ('cols' => 90, 'rows' => 3, 'placeholder' => 'Add your access statement here, with no line breaks.', 'description' => "CUSU policy is to only advertise events with access statements.<br />See our <a href=\"https://www.disabled.cusu.cam.ac.uk/resources/access-statements/\" target=\"_blank\" title=\"[Link opens in a new window]\">guidance on creating an access statement</a>."),
 			),
 		));
 		
@@ -1360,8 +1362,8 @@ class bulletin extends frontControllerApplication
 				if ($article['time']) {$articleText .= $this->createTitle ('Time', 5, $asHtml) . $article['time'];}
 				if ($article['location']) {
 					$articleText .= $this->createTitle ('Where', 5, $asHtml) . $article['location'];
-					if ($article['accessibility'] == 'Venue is not disabled accessible') {$articleText .= '  [NB: not disabled accessible]';}
 				}
+				$articleText .= "\n<strong>Access statement:</strong> " . htmlspecialchars ($article['accessibility']);
 				if ($article['date'] || $article['time'] || $article['location']) {$articleText .= "\n";}
 				
 				# Main article text
